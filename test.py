@@ -42,7 +42,7 @@ def run_script():
     storeStocksWithVolumeChange(stockSymbols)
 
 # Schedule the script to run daily at 9 AM
-schedule.every().day.at("13:40").do(run_script)
+schedule.every().day.at("09:00").do(run_script)
 
 # Keep the script running to allow schedule to execute
 while True:
