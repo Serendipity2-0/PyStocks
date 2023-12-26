@@ -81,12 +81,12 @@ def strategy_momentum(stock_symbols):
                         selected_stocks.append(symbol)
                         df_selected_stocks = pd.DataFrame(selected_stocks, columns=['Symbol'])
                         df_selected_stocks.to_csv("Momentum.csv", mode='a', header=False)  
-  
+
 def strategy_mean_reversion(stock_symbols):
     selected_stocks = []
     for symbol in stock_symbols:
         stock_data = fetcher.get_stock_data(symbol, period="2y", duration="1d")
-        
+        stock_data_weekly = fetcher.get_stock_data(symbol, period="2y", duration="1wk")
         if stock_data is not None and not stock_data.empty:
             # Calculate RSI
             rsi_length_input = 14
@@ -95,13 +95,16 @@ def strategy_mean_reversion(stock_symbols):
             # Calculate Bollinger Bands
             bb_window = 20
             stock_data = TA_indicators.indicator_bollinger_bands(stock_data, bb_window)
+            stock_data_weekly = TA_indicators.indicator_bollinger_bands(stock_data_weekly, bb_window)
             # Check if LTP is above 50 EMA
             stock_data = strategy_above_50EMA(stock_data)
             # Apply Mean Reversion Strategy conditions
             if rsi_values.iloc[-1] < 40 and stock_data['Above_50_EMA'].iloc[-1]:
-                if stock_data['Lower_band'].iloc[-2] < stock_data['Lower_band'].iloc[-3]:
-                    if stock_data['Lower_band'].iloc[-1] > stock_data['Lower_band'].iloc[-2]:
-                        selected_stocks.append(symbol)
-                        df_selected_stocks = pd.DataFrame(selected_stocks, columns=['Symbol'])
-                        df_selected_stocks.to_csv("MeanReversion.csv", mode='a', header=False)  
+                if stock_data_weekly['MA'].iloc[-1] < stock_data_weekly['Close'].iloc[-1]:
+                    if stock_data['Lower_band'].iloc[-2] < stock_data['Lower_band'].iloc[-3]:
+                        if stock_data['Lower_band'].iloc[-1] > stock_data['Lower_band'].iloc[-2]:
+                            selected_stocks.append(symbol)
+                            df_selected_stocks = pd.DataFrame(selected_stocks, columns=['Symbol'])
+                            df_selected_stocks.to_csv("MeanReversion.csv", mode='a', header=False) 
+
             
