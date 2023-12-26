@@ -1,31 +1,14 @@
 import pandas as pd
 import yfinance as yf
 from datetime import datetime
-
-# Function to fetch stock codes
-def fetchCodes():
-    url = "https://archives.nseindia.com/content/equities/EQUITY_L.csv"
-    return list(pd.read_csv(url)['SYMBOL'].values)
-
-# Function to fetch stock price data
-def fetchStockData(stockCode, period, duration):
-    try:
-        append_exchange = ".NS"
-        data = yf.download(
-            tickers=stockCode + append_exchange,
-            period=period,
-            interval=duration)
-        return data
-    except Exception as e:
-        print(f"Error fetching data for {stockCode}: {e}")
-        return None
+import fetcher
 
 # Function to check RSI conditions and store in Excel sheet
 def check_and_store_symbols(stock_symbols):
     valid_symbols = []
 
     for symbol in stock_symbols:
-        stock_data = fetchStockData(symbol, period="5y", duration="1d")
+        stock_data = fetcher.get_stock_data(symbol, period="5y", duration="1d")
 
         if stock_data is not None and not stock_data.empty:
             # Calculating RSI for different timeframes
@@ -39,6 +22,6 @@ def check_and_store_symbols(stock_symbols):
                 valid_symbols.to_csv("strategy.csv", mode='a', header=False)
 
 # Fetch stock symbols
-stock_symbols = fetchCodes()
+stock_symbols = fetcher.get_stock_codes()
 # Check RSI conditions and store valid symbols
 check_and_store_symbols(stock_symbols)

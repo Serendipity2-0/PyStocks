@@ -1,21 +1,6 @@
 import pandas as pd
 import yfinance as yf
-
-def fetchCodes():
-    url = "https://archives.nseindia.com/content/equities/EQUITY_L.csv"
-    return list(pd.read_csv(url)['SYMBOL'].values)
-
-def fetchStockData(stockCode, period, duration):
-    try:
-        append_exchange = ".NS"
-        data = yf.download(
-            tickers=stockCode + append_exchange,
-            period=period,
-            interval=duration)
-        return data
-    except Exception as e:
-        print(f"Error fetching data for {stockCode}: {e}")
-        return None
+import fetcher
 
 def calculate_rsi(data, rsi_length, rsi_source):
     try:
@@ -61,7 +46,7 @@ def Momentum_strategy(stock_symbols):
     selected_stocks = []
     
     for symbol in stock_symbols:
-        stock_data = fetchStockData(symbol, period="2y", duration="1d")
+        stock_data = fetcher.get_stock_data(symbol, period="2y", duration="1d")
         
         if stock_data is not None and not stock_data.empty:
             # Calculate RSI
@@ -87,7 +72,7 @@ def Momentum_strategy(stock_symbols):
                 
 
 # Fetch stock symbols
-stock_symbols = fetchCodes()
+stock_symbols = fetcher.get_stock_codes()
 # Apply Momentum Strategy and store selected stocks
 Momentum_strategy(stock_symbols)
 
