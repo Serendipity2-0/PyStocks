@@ -1,50 +1,50 @@
-
 import pandas as pd
-import yfinance as yf
-import schedule
-import time
+import numpy as np
 
-# Function to fetch stock symbols
-def fetchCodes():
-    listStockCodes = []
-    url = "https://archives.nseindia.com/content/equities/EQUITY_L.csv"
-    return list(pd.read_csv(url)['SYMBOL'].values)
-
-# Function to fetch stock data
-def fetchStockData(stockCode, period, duration):
-    try:
-        append_exchange = ".NS"
-        data = yf.download(
-            tickers=stockCode + append_exchange,
-            period=period,
-            interval=duration)
-        return data
-    except Exception as e:
-        print(f"Error fetching data for {stockCode}: {e}")
+def ma(source, length, type):
+    if type == "SMA" or type == "Bollinger Bands":
+        return source.rolling(window=length).mean()
+    elif type == "EMA":
+        return source.ewm(span=length, adjust=False).mean()
+    elif type == "SMMA (RMA)":
+        return source.rolling(window=length).apply(lambda x: (x * (2 / (length + 1))).sum() / (2 / (length + 1)), raw=True)
+    elif type == "WMA":
+        weights = np.arange(1, length + 1)
+        wma = source.rolling(window=length).apply(lambda x: np.dot(x, weights) / weights.sum(), raw=True)
+        return wma
+    elif type == "VWMA":
+        volume = pd.Series(data=[1000, 1200, 1500, 800, 950])  # Replace this with actual volume data
+        vwma = (source * volume).rolling(window=length).sum() / volume.rolling(window=length).sum()
+        return vwma
+    else:
         return None
 
-# Function to check volume change and store in CSV
-def storeStocksWithVolumeChange(stockSymbols, period='2d', duration='1d', volume_change_threshold=3):
-    for symbol in stockSymbols:
-        stock_data = fetchStockData(symbol, period, duration)
-        stock_data['Symbol'] = symbol
-        if stock_data is not None and len(stock_data) >= 2:
-            volume_changes = stock_data['Volume'].pct_change(periods=1).iloc[-2:]  # Calculate volume changes for last 2 days
-            avg_volume_change = volume_changes.mean()
-            if avg_volume_change > volume_change_threshold:
-                stock_data.to_csv("significant_volume_changes.csv", mode='a', header=False)  
-                print(f"Stock symbol {symbol} has a volume change more than 3x:\n{stock_data}\n")
+def calculate_rsi(data, rsi_length, rsi_source):
+    delta = data[rsi_source].diff()
+    gain = delta.where(delta > 0, 0)
+    loss = -delta.where(delta < 0, 0)
+    
+    avg_gain = gain.rolling(window=rsi_length).mean()
+    avg_loss = loss.rolling(window=rsi_length).mean()
+    
+    rs = avg_gain / avg_loss
+    rsi = 100 - (100 / (1 + rs))
+    return rsi
 
-# Function to run the script at 9 AM daily
-def run_script():
-    print("Running script at 9 AM...")
-    stockSymbols = fetchCodes()
-    storeStocksWithVolumeChange(stockSymbols)
+# Example usage
+data = pd.DataFrame({
+    'Close': [100, 110, 90, 95, 105, 115, 120, 125, 130, 120,110,120,200,239,140,100],
+    'Volume': [1000, 1200, 1500, 800, 950, 1100, 900, 850, 1000, 950, 500, 620, 1000,450,2300,4500]  # Replace this with actual volume data
+})
 
-# Schedule the script to run daily at 9 AM
-schedule.every().day.at("09:00").do(run_script)
+rsi_length_input = 14
+rsi_source_input = 'Close'
+ma_type_input = 'SMA'
+ma_length_input = 14
+bb_mult_input = 2.0
 
-# Keep the script running to allow schedule to execute
-while True:
-    schedule.run_pending()
-    time.sleep(60)  # Check schedule every minute
+rsi_values = calculate_rsi(data, rsi_length_input, rsi_source_input)
+
+# Printing RSI values and Bollinger Bands (if applicable)
+print("RSI Values:")
+print(rsi_values)
