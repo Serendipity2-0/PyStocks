@@ -42,3 +42,11 @@ def indicator_MACD(data, fast_length=12, slow_length=26, signal_length=9):
     data['MACD'] = data['EMA_fast'] - data['EMA_slow']
     data['Signal_line'] = data['MACD'].ewm(span=signal_length, adjust=False).mean()
     return data['MACD'], data['Signal_line']
+
+def indicator_atr(stock_data, window):
+    stock_data['HL'] = stock_data['High'] - stock_data['Low']
+    stock_data['HC'] = abs(stock_data['High'] - stock_data['Close'].shift())
+    stock_data['LC'] = abs(stock_data['Low'] - stock_data['Close'].shift())
+    stock_data['TR'] = stock_data[['HL', 'HC', 'LC']].max(axis=1)
+    stock_data['ATR'] = stock_data['TR'].rolling(window=window).mean()
+    return stock_data['ATR']
