@@ -109,7 +109,7 @@ def strategy_momentum(stock_symbols):
 def strategy_mean_reversion(stock_symbols):
     selected_stocks = []
     for symbol in stock_symbols:
-        stock_data = fetcher.get_stock_data(symbol, period="2y", duration="1d")
+        stock_data = fetcher.get_stock_data(symbol, period="2y", duration="1d")#for 15 min duration = 15m period = 50d, for hourly duration = 1h period = 1y
         stock_data_weekly = fetcher.get_stock_data(symbol, period="2y", duration="1wk")
         stock_data_monthly = fetcher.get_stock_data(symbol, period="2y", duration="1mo")
         if stock_data is not None and not stock_data.empty:
