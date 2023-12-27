@@ -154,20 +154,23 @@ def strategy_BollingerBand_Fail(stock_symbols):
                         df_selected_stocks = pd.DataFrame(selected_stocks, columns=['Symbol'])
                         df_selected_stocks.to_csv("BollingerBand_Fail.csv", mode='w', header=False)
             
-def strategy_EMA_BB_Confluence(stock_symbols,period, duration):
+def strategy_EMA_BB_Confluence(stock_symbols):
     selected_stocks =[]
     for symbol in stock_symbols:
-        stock_data = fetcher.get_stock_data(symbol, period, duration)
-        bb_window = 20
-        stock_data = TA_indicators.indicator_bollinger_bands(stock_data, bb_window)
-        stock_data['EMA_50'] = TA_indicators.indicator_50EMA(stock_data)
-        if stock_data['EMA_50'].iloc[-1] <= stock_data['Lower_band'].iloc[-1]:
-            if stock_data['Close'].iloc[-1] < stock_data['MA'].iloc[-1]:
-                if stock_data['Lower_band'].iloc[-2] < stock_data['Lower_band'].iloc[-3]:
-                    if stock_data['Lower_band'].iloc[-1] > stock_data['Lower_band'].iloc[-2]:
-                        bollinger_close_to_ema = abs(stock_data['Lower_band'].iloc[-1] - stock_data['EMA_50'].iloc[-1]) < 0.05 * stock_data['Close'].iloc[-1]
-                        if bollinger_close_to_ema:
-                            selected_stocks.append([symbol])
-                            df_selected_stocks = pd.DataFrame(selected_stocks, columns=['Symbol'])
-                            df_selected_stocks.to_csv("selected stocks.csv", mode='w', header=False)
+        try:
+            stock_data = fetcher.get_stock_data(symbol, period='1y', duration='1d')
+            bb_window = 20
+            stock_data = TA_indicators.indicator_bollinger_bands(stock_data, bb_window)
+            stock_data['EMA_50'] = TA_indicators.indicator_50EMA(stock_data)
+            if stock_data['EMA_50'].iloc[-1] <= stock_data['Lower_band'].iloc[-1]:
+                if stock_data['Close'].iloc[-1] < stock_data['MA'].iloc[-1]:
+                    if stock_data['Lower_band'].iloc[-2] < stock_data['Lower_band'].iloc[-3]:
+                        if stock_data['Lower_band'].iloc[-1] > stock_data['Lower_band'].iloc[-2]:
+                            bollinger_close_to_ema = abs(stock_data['Lower_band'].iloc[-1] - stock_data['EMA_50'].iloc[-1]) < 0.05 * stock_data['Close'].iloc[-1]
+                            if bollinger_close_to_ema:
+                                selected_stocks.append([symbol])
+                                df_selected_stocks = pd.DataFrame(selected_stocks, columns=['Symbol'])
+                                df_selected_stocks.to_csv("selected stocks.csv", mode='w', header=False)
+        except:
+            pass
     print("completed Scanning")

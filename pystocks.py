@@ -19,12 +19,7 @@ elif execute_option == 5:
 elif execute_option == 6:
     strategies.strategy_BollingerBand_Fail(stock_symbols)
 elif execute_option == 7:
-    stock_symbols = ['LT', 'RELIANCE', 'BAJFINANCE', 'HEROMOTOCO', 'HCLTECH', 'TCS', 'TITAN', 'APOLLOHOSP', 'ADANIENT', 'TECHM']
-    timeframe = int(input("Enter timeframe: \n 1. Hourly \n 2. 15 mins"))
-    if timeframe == 1:#Hourly
-        strategies.strategy_EMA_BB_Confluence(stock_symbols, '20d', '1h')
-    elif timeframe == 2:#15mins
-        strategies.strategy_EMA_BB_Confluence(stock_symbols, '10d', '15m')
+    strategies.strategy_EMA_BB_Confluence(stock_symbols)
 else:
     print("Invalid Option")
     pass
