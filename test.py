@@ -1,7 +1,4 @@
 import pandas as pd
-import fetcher  # Replace with your fetcher module
-import StopLoss  # Replace with your StopLoss module
-
 def strategy_VolumeBreakout(stockSymbols, period='2d', duration='1d', volume_change_threshold=3):
     selected_stocks = []
     
