@@ -135,4 +135,22 @@ def strategy_mean_reversion(stock_symbols):
                             df_selected_stocks.to_csv("MeanReversion.csv", mode='w', header=False)
 
 
+def strategy_BollingerBand_Fail(stock_symbols):
+    selected_stocks = []
+    for symbol in stock_symbols:
+        stock_data_daily = fetcher.get_stock_data(symbol, period="2y", duration="1d")
+        stock_data_weekly = fetcher.get_stock_data(symbol, period="2y", duration="1wk")
+        stock_data_monthly = fetcher.get_stock_data(symbol, period="2y", duration="1mo")
+        # Calculate Bollinger Bands
+        bb_window = 20
+        stock_data_daily = TA_indicators.indicator_bollinger_bands(stock_data_daily, bb_window)
+        stock_data_weekly = TA_indicators.indicator_bollinger_bands(stock_data_weekly, bb_window)
+        stock_data_monthly = TA_indicators.indicator_bollinger_bands(stock_data_monthly, bb_window)
+        if stock_data_monthly['MA'].iloc[-1] < stock_data_monthly['Close'].iloc[-1]:    
+            if stock_data_weekly['MA'].iloc[-1] < stock_data_weekly['Close'].iloc[-1]:
+                if stock_data_daily['MA'].iloc[-1] > stock_data_daily['Close'].iloc[-1]:
+                    if stock_data_daily['Lower_band'].iloc[-1] > stock_data_daily['Close'].iloc[-1]:
+                        selected_stocks.append(symbol)
+                        df_selected_stocks = pd.DataFrame(selected_stocks, columns=['Symbol'])
+                        df_selected_stocks.to_csv("BollingerBand_Fail.csv", mode='w', header=False)
             
