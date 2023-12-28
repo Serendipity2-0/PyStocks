@@ -1,25 +1,20 @@
 import strategies
 import fetcher
-
+import pandas as pd
 # Fetch stock symbols
 stock_symbols = fetcher.get_stock_codes()
+def shortTerm_pick(stock_symbols):
+    momentum_stocks = strategies.strategy_momentum(stock_symbols)  
+    mean_reversion_stocks = strategies.strategy_mean_reversion(stock_symbols)
+    ema_bb_confluence_stocks = strategies.strategy_EMA_BB_Confluence(stock_symbols)
 
-print("Select the Strategy you want to run:\n1. Momentum\n2. Mean Reversion\n3. NR4\n4. Volume Breakout\n5. Golden Crossover\n6. Bollinger Band Fail\n7. EMA and BB Confluence")
-execute_option = int(input("Enter your option: "))
-if execute_option == 1:
-    strategies.strategy_momentum(stock_symbols)
-elif execute_option == 2:
-    strategies.strategy_mean_reversion(stock_symbols)
-elif execute_option == 3:
-    strategies.strategy_nr4(stock_symbols)
-elif execute_option == 4: 
-    strategies.strategy_VolumeBreakout(stock_symbols)
-elif execute_option == 5:
-    strategies.strategy_golden_crossover(stock_symbols)
-elif execute_option == 6:
-    strategies.strategy_BollingerBand_Fail(stock_symbols)
-elif execute_option == 7:
-    strategies.strategy_EMA_BB_Confluence(stock_symbols)
-else:
-    print("Invalid Option")
-    pass
+    # Combine selected stocks from all strategies
+    shortTerm_stocks = momentum_stocks + mean_reversion_stocks + ema_bb_confluence_stocks
+
+    # Sort the combined list based on ATH to LTP ratio in ascending order
+    shortTerm_stocks.sort(key=lambda x: x[1])
+
+    # Store the sorted list in a CSV file
+    df_selected_stocks = pd.DataFrame(shortTerm_stocks, columns=['Symbol', 'ATH_to_LTP_Ratio'])
+    df_selected_stocks.to_csv("combined_selected_stocks.csv", index=False)
+shortTerm_pick(stock_symbols)
