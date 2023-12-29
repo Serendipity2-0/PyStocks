@@ -1,6 +1,10 @@
 import strategies
 import fetcher
 import pandas as pd
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 # Fetch stock symbols
 stock_symbols = fetcher.get_stock_codes()
 
@@ -10,6 +14,10 @@ mean_reversion_stocks =[]
 ema_bb_confluence_stocks = []
 volume_breakout =[]
 golden_crossover_stocks = []
+
+# Retrieves short term momentum, mean reversion and ema-bb confluence stocks
+# Combines and sorts stocks by ATH to LTP ratio
+# Exports sorted list to CSV and returns top picks
 def shortTerm_pick(stock_symbols):
     global momentum_stocks
     global mean_reversion_stocks
@@ -26,9 +34,12 @@ def shortTerm_pick(stock_symbols):
 
     # Store the sorted list in a CSV file
     df_short_selected_stocks = pd.DataFrame(shortTerm_stocks, columns=['Symbol', 'ATH_to_LTP_Ratio'])
-    df_short_selected_stocks.to_csv("shortterm_combined_selected_stocks.csv", index=False)
+    df_short_selected_stocks.to_csv(os.getenv('shortterm_path'), index=False)
     return shortTerm_stocks
 
+# Retrieves volume breakout stocks and selects top mid term picks
+# Sorts stocks by ATH to LTP ratio and exports to CSV
+# Returns list of selected mid term stocks
 def midTerm_pick(stock_symbols):
     global volume_breakout
     volume_breakout = strategies.strategy_VolumeBreakout(stock_symbols)
@@ -39,8 +50,12 @@ def midTerm_pick(stock_symbols):
     midTerm_stocks.sort(key=lambda x: x[1])
 
     df_mid_selected_stocks = pd.DataFrame(midTerm_stocks, columns=['Symbol', 'ATH_to_LTP_Ratio'])
-    df_mid_selected_stocks.to_csv("midterm_combined_selected_stocks.csv", index=False)
+    df_mid_selected_stocks.to_csv(os.getenv('midterm_path'), index=False)
     return midTerm_stocks
+
+# Retrieves golden crossover stocks and selects top long term picks
+# Sorts stocks by ATH to LTP ratio and exports to CSV
+# Returns list of selected long term stocks
 def longTerm_pick(stock_symbols):
     global golden_crossover_stocks
     golden_crossover_stocks = strategies.strategy_golden_crossover(stock_symbols)
@@ -51,7 +66,7 @@ def longTerm_pick(stock_symbols):
     longTerm_stocks.sort(key=lambda x: x[1])
 
     df_long_selected_stocks = pd.DataFrame(longTerm_stocks, columns=['Symbol', 'Stoploss'])
-    df_long_selected_stocks.to_csv("longterm_combined_selected_stocks.csv", index=False)
+    df_long_selected_stocks.to_csv(os.getenv('longterm_path'), index=False)
     return longTerm_stocks
 
 
@@ -64,6 +79,6 @@ df_midterm_top5 = pd.DataFrame(midterm_top5, columns=['Symbol', 'ATH_to_LTP_Rati
 df_longterm_top5 = pd.DataFrame(longterm_top5, columns=['Symbol', 'Stoploss'])
 
 #converting to CSV file
-df_shortterm_top5.to_csv("shortterm best 5.csv", index=False)
-df_midterm_top5.to_csv("midterm best 5.csv", index=False)
-df_longterm_top5.to_csv("longterm best 5.csv", index=False)
+df_shortterm_top5.to_csv(os.getenv('best5_shortterm_path'), index=False)
+df_midterm_top5.to_csv(os.getenv('best5_midterm_path'), index=False)
+df_longterm_top5.to_csv(os.getenv('best5_longterm_path'), index=False)
