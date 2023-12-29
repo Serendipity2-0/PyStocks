@@ -1,0 +1,18 @@
+{
+    "StrategyName": "PyStocks",
+    "Description": "Trading Strategy giving best 5 stocks for equity investments",
+    "Instruments": "All NSE Stocks",
+    "GeneralParams":{
+        "Timeframe": "Daily",
+        "OrderType": "LIMIT",
+        "ProductType": "CNC",
+        "Segment": "NSE",
+        "TradeView":"Bullish"
+    },
+    "EntryParams":{
+        "EntryTime": "09:20:00"
+    },
+    "ExitParams":{
+        "SLType": "5%"
+    }
+}
