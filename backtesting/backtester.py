@@ -11,7 +11,7 @@ def strategy_VolumeBreakout(stock_data, volume_change_threshold=3):
             entry_price = stock_data['Close'].iloc[-1]  # Entry price
             stop_loss = 0.10 * entry_price
             stop = entry_price-stop_loss
-            target = entry_price+(stop*2)  # 3x the stop loss
+            target = entry_price+(stop*3)  # 3x the stop loss
             
             return {'Signal': 'Buy', 'Entry_price': entry_price, 'Stop_loss': stop_loss, 'Target': target}
         else:
@@ -44,13 +44,15 @@ for i in range(len(data)):
         
         # Loop through stock data until stop loss or target is triggered
         while current_index < len(stock_data):
-            current_price = stock_data['Close'].iloc[current_index]  # Get current price
+            current_price_close = stock_data['Close'].iloc[current_index]  # Get current price
+            current_price_high = stock_data['High'].iloc[current_index] 
+            current_price_low = stock_data['Low'].iloc[current_index] 
             
             # Check if price hits stop loss or target
-            if current_price <= stop_loss:
+            if current_price_close <= stop_loss:
                 net_pnl -= entry-stop_loss
                 break  # Exit loop if stop loss is triggered
-            elif current_price >= target:
+            elif current_price_close >= target or  current_price_high>= target or current_price_low>= target:
                 net_pnl += entry+target
                 winning_trades += 1
                 break  # Exit loop if target is triggered
