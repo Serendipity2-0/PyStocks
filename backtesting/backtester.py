@@ -1,4 +1,5 @@
 import pandas as pd
+import Backtesting_Utils
 
 # Function to implement the backtesting strategy
 def strategy_VolumeBreakout(stock_data, volume_change_threshold=3):
@@ -23,9 +24,9 @@ def strategy_EMA_Crossover(stock_data):
     if stock_data is not None and len(stock_data) >= 53:  # Ensure sufficient data for EMA calculation
         stock_data = stock_data.copy()  # Create a copy to avoid modifying the original DataFrame
         
-        stock_data['EMA5'] = stock_data['Close'].ewm(span=5, min_periods=0, adjust=False).mean()
-        stock_data['EMA13'] = stock_data['Close'].ewm(span=13, min_periods=0, adjust=False).mean()
-        stock_data['EMA26'] = stock_data['Close'].ewm(span=26, min_periods=0, adjust=False).mean()
+        stock_data['EMA5'] = Backtesting_Utils.indicator_5EMA(stock_data)
+        stock_data['EMA13'] = Backtesting_Utils.indicator_13EMA(stock_data)
+        stock_data['EMA26'] = Backtesting_Utils.indicator_26EMA(stock_data)
 
         # Check for Golden Crossover
         if (stock_data['EMA5'].iloc[-2] < stock_data['EMA13'].iloc[-2] and
@@ -53,7 +54,7 @@ for i in range(len(data)):
     stock_data = data.iloc[:i + 1].copy()  # Iterate through historical data from the beginning up to the current index
     
     # Apply strategy function to get signals
-    strategy_result = strategy_VolumeBreakout(stock_data)
+    strategy_result = strategy_EMA_Crossover(stock_data)
     
     if strategy_result['Signal'] == 'Buy':
         entry = strategy_result['Entry_price']
