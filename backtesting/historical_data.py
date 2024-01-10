@@ -1,5 +1,6 @@
 import pandas as pd
 import yfinance as yf
+import to_database
 
 def get_stock_codes():
     url = "https://archives.nseindia.com/content/equities/EQUITY_L.csv"
@@ -12,13 +13,18 @@ def get_stock_data(stockCode, period, duration):
             tickers=stockCode + append_exchange,
             period=period,
             interval=duration)
+        
+        # Rounding off the values to 2 decimal places
+        data = data.round(2)
+        
         return data
     except Exception as e:
         return str(e)
-
+    
 def fetch_nse_stock_data(start_date, end_date):
-    stock_codes = get_stock_codes()
+    #stock_codes = get_stock_codes()
     error_stocks = []
+    stock_codes = ['RELIANCE']
     for code in stock_codes:
         data_dict = {}
         stock_data = get_stock_data(code, start_date, end_date)
@@ -36,7 +42,8 @@ def fetch_nse_stock_data(start_date, end_date):
         print(f"Error fetching data for these stocks: {error_stocks}")
 
 
-period='1y'
+period='30y'
 duration='1d'
 # Fetch NSE stock data and save it to CSV
 fetch_nse_stock_data(period, duration)
+to_database.main()
