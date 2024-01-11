@@ -22,22 +22,24 @@ for i in range(len(data)):
         stop_loss = strategy_result['Stop_loss']
         target = strategy_result['Target']
         current_index = i
-        
+        trailing_stop_loss = stop_loss
+        stop = entry - trailing_stop_loss
         # Loop through stock data until stop loss or target is triggered
         while current_index < len(data):
             current_price_close = data['Close'].iloc[current_index]  # Get current price
             current_price_high = data['High'].iloc[current_index] 
             current_price_low = data['Low'].iloc[current_index] 
-            
-            # Check if price hits stop loss or target
-            if current_price_close <= stop_loss or current_price_high <= stop_loss or current_price_low <= stop_loss:
-                net_pnl -= entry - stop_loss
-                break  # Exit loop if stop loss is triggered
-            elif current_price_close >= target or current_price_high >= target or current_price_low >= target:
-                net_pnl += entry + target
-                winning_trades += 1
-                break  # Exit loop if target is triggered
-            
+            if current_price_close >= entry+((stop)*0.5):
+                trailing_stop_loss = trailing_stop_loss + (trailing_stop_loss * 0.5)  # Update trailing stop loss
+                stop = current_price_close - trailing_stop_loss
+            if current_price_close <= trailing_stop_loss or current_price_high <= trailing_stop_loss or current_price_low <= trailing_stop_loss:
+                if trailing_stop_loss > entry:
+                    net_pnl += trailing_stop_loss - entry
+                    winning_trades += 1
+                    break  # Exit loop if stop loss is triggered
+                else:
+                    net_pnl -= entry - trailing_stop_loss
+                    break  # Exit loop if stop loss is triggered          
             current_index += 1  # Move to the next day
 
 # Calculate hit ratio
