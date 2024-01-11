@@ -2,7 +2,7 @@ import pandas as pd
 import strategy
 
 # Load historical stock data
-data = pd.read_csv('RELIANCE.csv')  # Replace 'RELIANCE.csv' with the filename of Reliance historical data
+data = pd.read_csv('C:\\Users\\phchi\\Desktop\\python - Serebdipity\\PyStocks\\RELIANCE.csv')  # Replace 'RELIANCE.csv' with the filename of Reliance historical data
 
 # Backtesting and calculating Net PnL and Hit Ratio
 capital = 1000000  # Initial capital
