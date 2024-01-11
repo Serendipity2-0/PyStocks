@@ -56,11 +56,12 @@ def strategy_momentum(stock_data):
         # Apply momentum Strategy conditions
         if rsi_values.iloc[-1] > 50 and stock_data['Above_50_EMA'].iloc[-1]:
             if stock_data['Upper_band'].iloc[-1] < stock_data['Close'].iloc[-1]:
-                if macd.iloc[-1] > signal_line.iloc[-1]:  # Condition 4
-                    entry_price = stock_data['Close'].iloc[-1]  # Entry price
-                    stop_loss = entry_price-(0.10 * entry_price)
-                    target = entry_price + (0.10 * entry_price * 3) 
-                    return {'Signal': 'Buy', 'Entry_price': entry_price, 'Stop_loss': stop_loss, 'Target': target}
+                if macd.iloc[-1] > signal_line.iloc[-1]:  
+                    if stock_data['Volume'].iloc[-1] > stock_data['Volume'].rolling(window=20).mean().iloc[-1]:
+                        entry_price = stock_data['Close'].iloc[-1]  # Entry price
+                        stop_loss = entry_price-(0.10 * entry_price)
+                        target = entry_price + (0.10 * entry_price * 3) 
+                        return {'Signal': 'Buy', 'Entry_price': entry_price, 'Stop_loss': stop_loss, 'Target': target}
     return {'Signal': 'No Signal'} 
 
 def strategy_vwap(stock_data):
@@ -83,8 +84,7 @@ def strategy_vwap(stock_data):
                     stock_data['Close'].iloc[-1] > stock_data['EMA13'].iloc[-1] and
                     stock_data['Close'].iloc[-1] > stock_data['EMA26'].iloc[-1] and
                     stock_data['Close'].iloc[-1] > stock_data['EMA50'].iloc[-1] and
-                    stock_data['Close'].iloc[-1] > stock_data['VWAP'].iloc[-1] and
-                    stock_data['Volume'].iloc[-1] > stock_data['Volume'].rolling(window=20).mean().iloc[-1]
+                    stock_data['Close'].iloc[-1] > stock_data['VWAP'].iloc[-1]
                 ):
                     entry_price = stock_data['Close'].iloc[-1]  # Entry price
                     stop_loss = entry_price-(0.10 * entry_price)
@@ -109,3 +109,20 @@ def strategy_ema_bb_confluence(stock_data):
                             return {'Signal': 'Buy', 'Entry_price': entry_price, 'Stop_loss': stop_loss, 'Target': target}
     return {'Signal': 'No Signal'} 
     
+def strategy_5_50_EMA_Crossover(stock_data):
+    if stock_data is not None and len(stock_data) >= 102:  # Ensure sufficient data for EMA calculation
+        stock_data = stock_data.copy()  # Create a copy to avoid modifying the original DataFrame
+        
+        stock_data['EMA5'] = Backtesting_Utils.indicator_5EMA(stock_data)
+        stock_data['EMA50'] = Backtesting_Utils.indicator_50EMA(stock_data)
+        stock_data['VWAP'] = Backtesting_Utils.indicator_vwap(stock_data)
+        if (stock_data['EMA5'].iloc[-2] < stock_data['EMA50'].iloc[-2] and
+            stock_data['EMA5'].iloc[-1] > stock_data['EMA50'].iloc[-1]):
+            if stock_data['Close'].iloc[-1] > stock_data['VWAP'].iloc[-1]:
+                if stock_data['Volume'].iloc[-1] > stock_data['Volume'].rolling(window=20).mean().iloc[-1]:
+                    entry_price = stock_data['Close'].iloc[-1]  # Entry price
+                    stop_loss = entry_price-(0.10 * entry_price)
+                    target = entry_price + (0.10 * entry_price * 3) 
+                    return {'Signal': 'Buy', 'Entry_price': entry_price, 'Stop_loss': stop_loss, 'Target': target}
+    return {'Signal': 'No Signal'} 
+                
