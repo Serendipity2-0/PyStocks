@@ -70,7 +70,7 @@ for i in range(len(data)):
             current_price_low = data['Low'].iloc[current_index] 
             
             # Check if price hits stop loss or target
-            if current_price_close <= stop_loss:
+            if current_price_close <= stop_loss or current_price_high <= stop_loss or current_price_low <= stop_loss:
                 net_pnl -= entry - stop_loss
                 break  # Exit loop if stop loss is triggered
             elif current_price_close >= target or current_price_high >= target or current_price_low >= target:
