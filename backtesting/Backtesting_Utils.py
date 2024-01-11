@@ -47,3 +47,8 @@ def strategy_above_50EMA(stock_data):
         return stock_data
     else:
         return None
+    
+def indicator_vwap(stock_data):
+    cum_volume = (stock_data['Volume'] * (stock_data['High'] + stock_data['Low']) / 2).cumsum()
+    vwap = cum_volume / stock_data['Volume'].cumsum()
+    return vwap
